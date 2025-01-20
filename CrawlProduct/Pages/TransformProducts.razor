@@ -1,0 +1,92 @@
+﻿@page "/transform-products"
+@using CrawlProduct.Models
+
+@inject IHttpClientFactory ClientFactory
+
+<PageTitle>Transformed Products</PageTitle>
+
+<h1>Transformed Products</h1>
+
+@if (products == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Sku</th>
+            <th>ParentSku</th>
+            <th>Attributes</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>OriginalPrice</th>
+            <th>DiscountedPrice</th>
+            <th>Images</th>
+            <th>Score</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var product in products)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Description</td>
+                <td>@product.Sku</td>
+                <td>@product.ParentSku</td>
+                <td>
+                    @if (product.Attributes != null)
+                    {
+                        <ul class="list-unstyled m-0">
+                            @foreach (var attr in product.Attributes)
+                            {
+                                <li>@attr.Key: @attr.Name</li>
+                            }
+                        </ul>
+                    }
+                </td>
+                <td>@product.Category</td>
+                <td>@product.Brand</td>
+                <td>@product.OriginalPrice</td>
+                <td>@product.DiscountedPrice</td>
+                <td>
+                    @if (product.Images != null)
+                    {
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var image in product.Images)
+                            {
+                                <img src="@image" alt="Ürün görseli" style="width: 50px; height: 50px; object-fit: cover;" />
+                            }
+                        </div>
+                    }
+                </td>
+                <td>@product.Score</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<TransformedProduct>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var client = ClientFactory.CreateClient("API");
+            products = await client.GetFromJsonAsync<List<TransformedProduct>>("api/product/transform-products");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+
+}
